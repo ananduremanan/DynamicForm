@@ -1,0 +1,28 @@
+@import url(../node_modules/npm-package/src/styles/customega.css);
+
+.wrapper-cls{
+    padding: 1rem;
+    margin-top: 4rem;
+}
+
+.form-cls{
+    display: inline-block;
+    padding: 1rem 2rem 1rem 2rem;
+    border: 1px solid rgb(227, 22, 91);
+    border-radius: 2rem;
+}
+
+.btn-cls{
+    background: rgb(227, 22, 91);
+    border: none;
+    border-radius: 1rem;
+    color: white;
+    padding: 0.4rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.btn-cls:hover{
+    background: rgb(201, 56, 105);
+}
