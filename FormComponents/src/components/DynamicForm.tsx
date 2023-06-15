@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { TextInput, CustomDropdown, DatePicker, CheckBox } from "npm-package";
+import { CustomDropdown, DatePicker, CheckBox } from "npm-package";
 import jsonData from "../data/valueData.json";
 // Redux Imports
-import { useDispatch } from "react-redux";
-import { setData } from "../../node_modules/npm-package/src/redux/dataSlice";
+import { useDispatch, useSelector } from "react-redux";
+// import { setData } from "../../node_modules/npm-package/src/redux/dataSlice";
 // import type { RootState } from "../../node_modules/npm-package/src/redux/store";
-// Testing
-// import { TextInput } from '../testingComponent/TextInput'
 
-// import { setData } from "../redux/dataSlice";
-// import { RootState } from "../redux/store";
+// Testing
+import { TextInput } from '../testingComponent/TextInput'
+
+import { setData, setFormData } from "../redux/dataSlice";
+import { RootState } from "../redux/store";
 
 // Types
 interface FormDataBlock {
@@ -30,12 +31,28 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData }) => {
 
   // React redux dispatch and useSelector
   const dispatch = useDispatch();
-  // const data = useSelector((state: RootState) => state.data.data);
+  const data = useSelector((state: RootState) => state.data.data);
+  console.log(data);
 
   // Stores JSON data to store on loading page
   useEffect(() => {
-    dispatch(setData(jsonData));
-  }, [dispatch]);
+    const initialFormState = formData.reduce((result, block) => {
+      const { blockId, jsonKey } = block;
+      const matchingData = jsonData.find(
+        (data) => data.blockId === blockId && data.jsonKey === jsonKey
+      );
+
+      if (matchingData) {
+        return {
+          ...result,
+          [blockId]: matchingData.value,
+        };
+      }
+      return result;
+    }, {});
+
+    setFormState(initialFormState);
+  }, [formData]);
 
   // Form HandleInput Function
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,15 +66,28 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData }) => {
   // handleSubmit function
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    // dispatch(setData(formState));
-    console.log(formState);
+
+    const updatedData = formData.reduce((result, block) => {
+      const { blockId, jsonKey } = block;
+      const formValue = formState[blockId];
+
+      return {
+        ...result,
+        [blockId]: {
+          blockId,
+          jsonKey,
+          value: formValue,
+        },
+      };
+    }, {});
+
+    dispatch(setFormData(updatedData));
   };
 
   return (
     <div className="wrapper-cls">
       <div className="form-cls">
         <h1>Shipment Info Form</h1>
-        <form onSubmit={handleSubmit}>
           {formData.map((block) => {
             const { blockType, blockId, label, jsonKey, ...props } = block;
 
@@ -107,10 +137,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData }) => {
                 return null;
             }
           })}
-          <button className="btn-cls" type="submit">
+          <button className="btn-cls" type="submit" onClick={handleSubmit}>
             Submit
           </button>
-        </form>
       </div>
     </div>
   );
