@@ -1,9 +1,11 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import { DropDownListComponent } from "@syncfusion/ej2-react-dropdowns";
+// Redux Imports
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "../../redux/store";
+import { setFormData } from "../../redux/dataSlice";
 
-// Props Interface. Added as optional and it's not required to be
-// present in the object that matches this type..
-interface CustomDropdownProps {
+type CustomDropdownProps = {
   dataSource?: any[] | any; // Accepts array or string (API URL)
   fields?: { text: any; value: any };
   placeholder?: string;
@@ -11,41 +13,31 @@ interface CustomDropdownProps {
   onChange?: (event: any) => void;
   className?: string;
   name?: string;
-}
+  jsonKey?: any;
+};
 
-//  Define the Dropdown component as a class component.
-export class CustomDropdown extends Component<CustomDropdownProps, {}> {
-  // default values for the props. If not passed from child these values
-  // will act as defaults.
-  static defaultProps = {
-    label: "",
-    placeholder: "",
-    value: "",
-    onChange: () => {},
-    className: "",
-    name: "",
-  };
+export const CustomDropdown: React.FC<CustomDropdownProps> = ({
+  dataSource,
+  fields,
+  placeholder,
+  value,
+  onChange,
+  className,
+  name,
+  jsonKey,
+}) => {
+  const [data, setData] = useState<any[]>([]);
+  const storeData = useSelector((state: RootState) => state.data.data);
+  const dispatch = useDispatch();
 
-  state = {
-    data: [], // Holds the fetched data from API
-  };
+  useEffect(() => {
+    fetchData(dataSource);
+  }, [dataSource]);
 
-  componentDidMount() {
-    const { dataSource } = this.props;
-    this.fetchData(dataSource);
-  }
-
-  componentDidUpdate(prevProps: CustomDropdownProps) {
-    const { dataSource } = this.props;
-    if (dataSource !== prevProps.dataSource) {
-      this.fetchData(dataSource);
-    }
-  }
-
-  fetchData = async (dataSource: any[] | string) => {
+  const fetchData = async (dataSource: any[] | string) => {
     if (Array.isArray(dataSource)) {
       // If dataSource is an array, set it as the data directly
-      this.setState({ data: dataSource });
+      setData(dataSource);
     } else if (typeof dataSource === "string") {
       // If dataSource is an API URL, fetch the data from the API
       try {
@@ -55,32 +47,35 @@ export class CustomDropdown extends Component<CustomDropdownProps, {}> {
           text: item.title,
           value: item.id.toString(),
         }));
-        this.setState({ data: mappedData });
+        setData(mappedData);
       } catch (error) {
         console.error("Failed to fetch data from API:", error);
       }
     }
   };
-  
-  render() {
-    // Destructure the props and state from the component.
-    const { fields, placeholder, value, onChange, className, name } = this.props;
-    const { data } = this.state;
 
-    // Render the input field with label.
-    return (
-      <div>
-        <DropDownListComponent
-          id="ddlelement"
-          dataSource={data}
-          fields={fields}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          className={className}
-          name={name}
-        />
-      </div>
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const index = storeData[0].findIndex(
+      (item: any) => item.blockId === name && item.jsonKey === jsonKey
     );
-  }
-}
+    const updatedData = [...storeData[0]];
+    updatedData[index] = { ...updatedData[index], value };
+    dispatch(setFormData(updatedData));
+  };
+
+  return (
+    <div>
+      <DropDownListComponent
+        id="ddlelement"
+        dataSource={data}
+        fields={fields}
+        placeholder={placeholder}
+        value={value}
+        onChange={handleChange}
+        className={className}
+        name={name}
+      />
+    </div>
+  );
+};

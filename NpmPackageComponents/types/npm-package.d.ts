@@ -1,22 +1,37 @@
-import { Component, ChangeEvent } from "react";
+import React, { Component, ChangeEvent } from "react";
 
 declare module "npm-package" {
+  // export interface TextInputProps {
+  //   type: string;
+  //   label: string;
+  //   value: string;
+  //   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  //   disabled: boolean;
+  //   required: boolean;
+  //   className: string;
+  //   name: string;
+  //   jsonKey: any;
+  // }
+
+  // export class TextInput extends Component<TextInputProps> {
+  //   static defaultProps: TextInputProps;
+  //   render(): JSX.Element;
+  // }
+
   export interface TextInputProps {
-    type: string;
-    label: string;
-    value: string;
-    onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-    disabled: boolean;
-    required: boolean;
-    className: string;
-    name: string;
-    jsonKey: any;
+    type?: string;
+    label?: string;
+    value?: string;
+    onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+    disabled?: boolean;
+    required?: boolean;
+    className?: string;
+    name?: string;
+    placeholder?: string;
+    jsonKey?: any;
   }
 
-  export class TextInput extends Component<TextInputProps> {
-    static defaultProps: TextInputProps;
-    render(): JSX.Element;
-  }
+  export const TextInput: React.FC<TextInputProps>;
 
   export interface DatePickerProps {
     placeholder: string;
@@ -30,21 +45,34 @@ declare module "npm-package" {
     render(): JSX.Element;
   }
 
+  // export interface CustomDropdownProps {
+  //   label: string;
+  //   dataSource: any[];
+  //   fields: { text: any; value: any };
+  //   placeholder: string;
+  //   value: string;
+  //   onChange: (event: any) => void;
+  //   className: string;
+  //   name: string;
+  // }
+
+  // export class CustomDropdown extends Component<CustomDropdownProps, {}> {
+  //   static defaultProps: CustomDropdownProps;
+  //   render(): JSX.Element;
+  // }
+
   export interface CustomDropdownProps {
-    label: string;
-    dataSource: any[];
-    fields: { text: any; value: any };
-    placeholder: string;
-    value: string;
-    onChange: (event: any) => void;
-    className: string;
-    name: string;
+    dataSource?: any[] | any;
+    fields?: { text: any; value: any };
+    placeholder?: string;
+    value?: string;
+    onChange?: (event: any) => void;
+    className?: string;
+    name?: string;
+    jsonKey?: any;
   }
 
-  export class CustomDropdown extends Component<CustomDropdownProps, {}> {
-    static defaultProps: CustomDropdownProps;
-    render(): JSX.Element;
-  }
+  export const CustomDropdown: React.FC<CustomDropdownProps>;
 
   export interface GridProps {
     pageSize: number;
@@ -96,4 +124,12 @@ declare module "npm-package" {
   export class TimePicker extends Component<TimePickerProps> {
     render(): JSX.Element;
   }
+
+  export interface DataState{
+    data: any;
+  }
+
+  export function setFormData(
+    state: any,
+  ): any;
 }

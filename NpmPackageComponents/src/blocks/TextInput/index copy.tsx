@@ -1,8 +1,5 @@
 // Custom Text Component
 import React, { Component, ChangeEvent } from "react";
-// Redux import 
-import { setData } from "../../redux/dataSlice";
-import type { RootState } from "../../redux/store";
 
 // Props Type. Added as optional and it's not required to be
 // present in the object that matches this type..
