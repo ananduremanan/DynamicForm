@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { TextInput, CustomDropdown, DatePicker, CheckBox } from "npm-package";
+import React, { useEffect } from "react";
 import jsonData from "../data/valueData.json";
 // Redux Imports
-import { useDispatch } from "react-redux";
-import { setData } from "../../node_modules/npm-package/src/redux/dataSlice";
-// import type { RootState } from "../../node_modules/npm-package/src/redux/store";
+import { useDispatch, useSelector } from "react-redux";
 // Testing
-// import { TextInput } from '../testingComponent/TextInput'
-
-// import { setData } from "../redux/dataSlice";
+// import { TextInput } from "../testingComponent/TextInput";
+// import { CustomDropdown } from "../testingComponent/CustomDropdown";
+// import { setFormData } from "../redux/dataSlice";
 // import { RootState } from "../redux/store";
+
+import { TextInput } from "npm-package";
+import { CustomDropdown } from "npm-package";
+import { setFormData } from "npm-package";
+import { RootState } from "../../node_modules/npm-package/src/redux/store";
 
 // Types
 interface FormDataBlock {
@@ -20,97 +22,78 @@ interface FormDataBlock {
 interface DynamicFormProps {
   formData: FormDataBlock[];
 }
-interface FormState {
-  [key: string]: string;
-}
+// interface FormState {
+//   [key: string]: string;
+// }
 
 const DynamicForm: React.FC<DynamicFormProps> = ({ formData }) => {
-  // State to store form data
-  const [formState, setFormState] = useState<FormState>({});
-
-  // React redux dispatch and useSelector
   const dispatch = useDispatch();
-  // const data = useSelector((state: RootState) => state.data.data);
+  const data = useSelector((state: RootState) => state.data.data);
+  // console.log(data);
 
-  // Stores JSON data to store on loading page
   useEffect(() => {
-    dispatch(setData(jsonData));
-  }, [dispatch]);
+    const initialData = formData.map((block) => {
+      const { blockId, jsonKey } = block;
+      const matchingData = jsonData.find(
+        (data) => data.blockId === blockId && data.jsonKey === jsonKey
+      );
 
-  // Form HandleInput Function
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormState((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
+      const inputValue = matchingData ? matchingData.value : "";
 
-  // handleSubmit function
-  const handleSubmit = (event: React.FormEvent) => {
+      return {
+        blockId,
+        jsonKey,
+        value: inputValue,
+      };
+    });
+
+    dispatch(setFormData(initialData));
+  }, [dispatch, formData]);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    // dispatch(setData(formState));
-    console.log(formState);
+    console.log(JSON.stringify(data[0]));
   };
 
   return (
     <div className="wrapper-cls">
       <div className="form-cls">
         <h1>Shipment Info Form</h1>
-        <form onSubmit={handleSubmit}>
-          {formData.map((block) => {
-            const { blockType, blockId, label, jsonKey, ...props } = block;
-
-            // Rendering the Dynamic JSON components
-            switch (blockType) {
-              case "TextBox":
-                return (
-                  <div key={blockId}>
-                    <label htmlFor={blockId}>{label}:</label>
-                    <TextInput
-                      key={blockId}
-                      {...props}
-                      type="text"
-                      name={blockId}
-                      jsonKey={jsonKey}
-                      value={formState[blockId] || ""}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                );
-              case "DropDown":
-                return (
-                  <div key={blockId}>
-                    <label htmlFor={blockId}>{label}:</label>
-                    <CustomDropdown
-                      key={blockId}
-                      {...props}
-                      name={blockId}
-                      value={formState[blockId] || ""}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                );
-              case "DatePicker":
-                return (
-                  <div key={blockId}>
-                    <label htmlFor={blockId}>{label}:</label>
-                    <DatePicker
-                      key={blockId}
-                      {...props}
-                      // value={formState[blockId] || ""} // need updation in the source
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                );
-              default:
-                return null;
-            }
-          })}
-          <button className="btn-cls" type="submit">
-            Submit
-          </button>
-        </form>
+        {formData.map((block) => {
+          const { blockType, blockId, label, jsonKey, ...props } = block;
+          switch (blockType) {
+            case "TextBox":
+              return (
+                <div key={blockId}>
+                  <label htmlFor={blockId}>{label}:</label>
+                  <TextInput
+                    key={blockId}
+                    {...props}
+                    type="text"
+                    name={blockId}
+                    jsonKey={jsonKey}
+                  />
+                </div>
+              );
+            case "DropDown":
+              return (
+                <div key={blockId}>
+                  <label htmlFor={blockId}>{label}:</label>
+                  <CustomDropdown
+                    key={blockId}
+                    {...props}
+                    name={blockId}
+                    jsonKey={jsonKey}
+                  />
+                </div>
+              );
+            default:
+              return null;
+          }
+        })}
+        <button className="btn-cls" type="submit" onClick={handleClick}>
+          Submit
+        </button>
       </div>
     </div>
   );
